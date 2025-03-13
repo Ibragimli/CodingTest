@@ -9,31 +9,40 @@ using System.Xml.Linq;
 
 namespace CodingTest.Infrastructure.Services
 {
-    //XMLLoader.cs - XML faylları oxuyur
     public class XMLLoader : IFileLoader
     {
         public async Task<List<TradeData>> LoadDataAsync(string filePath)
         {
             var trades = new List<TradeData>();
 
-            // Asinxron olaraq XML faylını yükləyirik
-            var xml = await Task.Run(() => XElement.Load(filePath));
-
-            // XML elementləri arasında dövr edirik
-            foreach (var element in xml.Elements("value"))
+            try
             {
-                // Hər bir elementi işləyirik və trade məlumatını siyahıya əlavə edirik
-                trades.Add(new TradeData
+                var xml = await Task.Run(() => XElement.Load(filePath));
+
+                foreach (var element in xml.Elements("value"))
                 {
-                    Date = DateTime.Parse(element.Attribute("date").Value),
-                    Open = double.Parse(element.Attribute("open").Value),
-                    High = double.Parse(element.Attribute("high").Value),
-                    Low = double.Parse(element.Attribute("low").Value),
-                    Close = double.Parse(element.Attribute("close").Value),
-                    Volume = int.Parse(element.Attribute("volume").Value)
-                });
+                    trades.Add(new TradeData
+                    {
+                        Date = DateTime.Parse(element.Attribute("date")?.Value ?? throw new Exception("Date attribute is missing")),
+                        Open = double.Parse(element.Attribute("open")?.Value ?? throw new Exception("Open attribute is missing")),
+                        High = double.Parse(element.Attribute("high")?.Value ?? throw new Exception("High attribute is missing")),
+                        Low = double.Parse(element.Attribute("low")?.Value ?? throw new Exception("Low attribute is missing")),
+                        Close = double.Parse(element.Attribute("close")?.Value ?? throw new Exception("Close attribute is missing")),
+                        Volume = int.Parse(element.Attribute("volume")?.Value ?? throw new Exception("Volume attribute is missing"))
+                    });
+                }
+
+                if (!trades.Any())
+                    throw new Exception("No trades found in the XML file");
+
             }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error XML file: {ex.Message}");
+            }
+
             return trades;
         }
     }
+
 }
