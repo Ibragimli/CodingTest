@@ -1,4 +1,5 @@
-📌 Project Description
+📌 Project Description 
+
 This is a C# WPF application designed to monitor a specified directory for new files (CSV, XML, TXT) at a configurable interval. When new files appear, the application loads and processes them in parallel, displaying the results in the GUI without blocking the main thread.
 
 🚀 Features
